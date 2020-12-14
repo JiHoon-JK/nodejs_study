@@ -113,6 +113,8 @@ router.route('/process/save').post(upload.array('photo', 1), function(req, res) 
         
         res.writeHead(200, {'Content-Type':'text/html;charset=utf8'});
         res.write('<div><p>메모가 저장되었습니다.</p></div>');
+        // 해당 부분에서 경로설정이 잘못돼서 정상적으로 사진이 나오질 않음.
+        // 사진이 저장되는 uploads 폴더의 잘못된 설정으로 해당 경로에 사진이 없음.
         res.write('<img src="/uploads/'+filename+'" width="200px">');
         res.write('<div><input type="button" value="다시 작성" onclick="javascript:history.back()"></div>');
         res.end();
