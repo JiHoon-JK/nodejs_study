@@ -34,7 +34,7 @@ app.set('port', process.env.PORT || 3000);
 // body-parser 설정
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
- 
+
 // public 폴더를 static으로 오픈
 app.use('/public', static(path.join(__dirname, 'public')));
 app.use('/upload', express.static('uploads'));
@@ -57,7 +57,7 @@ var storage = multer.diskStorage({
     }
 });
 
-var upload = multer({ 
+var upload = multer({
     storage: storage,
     limits: {
 		files: 10,
@@ -72,31 +72,31 @@ var router = express.Router();
 // 메모 저장을 위한 라우팅 함수
 router.route('/process/save').post(upload.array('photo', 1), function(req, res) {
 	console.log('/process/save 호출됨.');
-	
+
 	try {
 		var paramAuthor = req.body.author;
         var paramContents = req.body.contents;
 		var paramCreateDate = req.body.createDate;
-		
+
 		console.log('작성자 : ' + paramAuthor);
 		console.log('내용 : ' + paramContents);
 		console.log('일시 : ' + paramCreateDate);
- 
+
         var files = req.files;
-	
+
         console.dir('#===== 업로드된 첫번째 파일 정보 =====#')
         console.dir(req.files[0]);
         console.dir('#=====#')
-        
+
 		// 현재의 파일 정보를 저장할 변수 선언
 		var originalname = '',
 			filename = '',
 			mimetype = '',
 			size = 0;
-		
+
 		if (Array.isArray(files)) {   // 배열에 들어가 있는 경우 (설정에서 1개의 파일도 배열에 넣게 했음)
 	        console.log("배열에 들어있는 파일 갯수 : %d", files.length);
-	        
+
 	        for (var index = 0; index < files.length; index++) {
 	        	originalname = files[index].originalname;
 	        	filename = files[index].filename;
@@ -109,8 +109,8 @@ router.route('/process/save').post(upload.array('photo', 1), function(req, res) 
 	    } else {
             console.log('업로드된 파일이 배열에 들어가 있지 않습니다.');
 	    }
-		
-        
+
+
         res.writeHead(200, {'Content-Type':'text/html;charset=utf8'});
         res.write('<div><p>메모가 저장되었습니다.</p></div>');
         // 해당 부분에서 경로설정이 잘못돼서 정상적으로 사진이 나오질 않음.
@@ -120,12 +120,12 @@ router.route('/process/save').post(upload.array('photo', 1), function(req, res) 
         res.end();
 	} catch(err) {
 		console.dir(err.stack);
-		
+
 		res.writeHead(400, {'Content-Type':'text/html;charset=utf8'});
 		res.write('<div><p>메모 저장 시 에러 발생</p></div>');
 		res.end();
-	}	
-		
+	}
+
 });
 
 
@@ -135,6 +135,8 @@ app.use('/', router);
 // 404 에러 페이지 처리
 var errorHandler = expressErrorHandler({
     static: {
+      // 404에러와 관련된 html 파일 역시, 경로설정이 잘 안되는 오류가 발생해서, 일단 절대경로로 삽입하였다.
+      // 원래는 /public/404.html 과 같은 상대경로로 설정하려고 했다.
       '404': 'C:/Users/kks13/OneDrive/바탕 화면/Dev/Study/nodejs/nodejs_study/ExpressExample/연습문제/mission4/public/404.html'
     }
 });
@@ -147,5 +149,3 @@ app.use( errorHandler );
 var server = http.createServer(app).listen(app.get('port'), function(){
   console.log('웹 서버 시작됨 -> %s, %s', server.address().address, server.address().port);
 });
-
-
