@@ -75,18 +75,18 @@ router.route('/process/save').post(upload.array('photo', 1), function(req, res) 
 
 	try {
 		var paramAuthor = req.body.author;
-        var paramContents = req.body.contents;
+    var paramContents = req.body.contents;
 		var paramCreateDate = req.body.createDate;
 
 		console.log('작성자 : ' + paramAuthor);
 		console.log('내용 : ' + paramContents);
 		console.log('일시 : ' + paramCreateDate);
 
-        var files = req.files;
+    var files = req.files;
 
-        console.dir('#===== 업로드된 첫번째 파일 정보 =====#')
-        console.dir(req.files[0]);
-        console.dir('#=====#')
+    console.dir('#===== 업로드된 첫번째 파일 정보 =====#')
+    console.dir(req.files[0]);
+    console.dir('#=====#')
 
 		// 현재의 파일 정보를 저장할 변수 선언
 		var originalname = '',
