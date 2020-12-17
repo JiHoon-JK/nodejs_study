@@ -75,7 +75,7 @@ router.route('/process/save').post(upload.array('photo', 1), function(req, res) 
 
 	try {
 		var paramAuthor = req.body.author;
-    var paramContents = req.body.contents;
+        var paramContents = req.body.contents;
 		var paramCreateDate = req.body.createDate;
 
 		console.log('작성자 : ' + paramAuthor);
@@ -141,6 +141,7 @@ var errorHandler = expressErrorHandler({
     }
 });
 
+// 에러 핸들러를 사용하는 구문
 app.use( expressErrorHandler.httpError(404) );
 app.use( errorHandler );
 
