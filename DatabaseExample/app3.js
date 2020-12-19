@@ -71,7 +71,10 @@ function connectDB(){
     mongoose.connect(databaseUrl);
     database = mongoose.connection;
     
+    // 에러가 발생했을 때 이벤트
     database.on('error', console.error.bind(console, 'mongoose connection error'));
+    
+    // 데이터베이스를 열었을 때 이벤트
     database.on('open', function(){
         console.log('데이터베이스에 연결되었습니다. : ' + databaseUrl);
         // 스키마 정의
