@@ -53,6 +53,7 @@ function createUserSchema() {
 	});
 	
 	// info를 virtual 메소드로 정의
+    // 가상적인 속성을 집어넣기 위해서 virtual() 사용
 	UserSchema
 	  .virtual('info')
 	  .set(function(info) {
