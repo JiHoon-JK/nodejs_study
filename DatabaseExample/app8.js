@@ -56,7 +56,7 @@ var pool = mysql.createPool({
     password : 'kks4217117!',
     database : 'test',
     debug : false
-})
+});
 
 // 데이터베이스 객체를 위한 변수 선언
 var database;
