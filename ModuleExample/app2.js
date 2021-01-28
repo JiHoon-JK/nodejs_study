@@ -1,12 +1,3 @@
-/**
- * 모듈화하기
- * 
- * 이전 장(데이터베이스 사용하기)에서 만들었던 웹서버 코드 중 상당 부분을 모듈화하기
- *
- * @date 2016-11-10
- * @author Mike
- */
-
 // Express 기본 모듈 불러오기
 var express = require('express')
   , http = require('http')
