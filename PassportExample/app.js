@@ -76,43 +76,109 @@ app.use(expressSession({
 
  
 //라우팅 정보를 읽어들여 라우팅 설정
-route_loader.init(app, express.Router());
+var router = express.Router();
+route_loader.init(app, router);
+
+// ===== 라우팅 함수 ===== //
+
+// 홈 화면 - index.ejs 템플릿으로 홈 화면이 보이도록 함.
+router.route('/').get(function(req,res){
+    console.log('/ 패스 요청됨.');
+    res.render('index.ejs');
+});
+
+// 로그인 폼 링크
+// login 패스 get 방식
+router.route('/login').get(function(req,res){
+    console.log('/login 패스 요청됨');
+    res.render('login.ejs', {message : req.flash('loginMessage')});
+});
+// login 패스 post 방식
+router.route('/login').post(passport.authenticate('local-login',{
+    successRedirect : '/profile',
+    failRedirect : '/login',
+    failureFlash : true
+}));
+
+// 회원가입 폼 링크
+// signup 패스 get 방식
+router.route('/signup').get(function(req,res){
+    console.log('/signup 패스 요청됨');
+    res.render('signup.ejs', {message : req.flash('signupMessage')});
+});
+// signup 패스 post 방식
+app.post('/signup', passport.authenticate('local-signup',{
+    successRedirect : '/profile',
+    failRedirect : '/signup',
+    failureFlash : true
+}));
+
+// 프로필 화면 - 로그인 여부를 확인할 수 있고 먼저 isLoggedIn 미들웨어 실행
+router.route('/profile').get(function(req,res){
+    console.log('/profile 패스 요청됨.');
+    
+    // 인증된 경우 req.user 객체에 사용자 정보가 있으며, 인증이 안 된 경우 req.user는 false 값임
+    console.log('req.user 객체의 값');
+    console.dir(req.user);
+    
+    // 인증이 안 된 경우
+    if(!req.user){
+        console.log('사용자 인증이 안 된 상태임');
+        res.redirect('/');
+        return;
+    }
+    
+    // 인증된 경우
+    console.log('사용자 인증된 상태임');
+    if (Array.isArray(req.user)){
+        res.render('profile.ejs',{user:req.user[0]._doc});
+    }else{
+        res.render('profile.ejs',{user:req.user});
+    }
+});
+
+// 로그아웃
+app.get('/logout',function(req,res){
+    console.log('/logout 패스로 요청됨.');
+    req.logout();
+    res.redirect('/');
+})
 
 
 // == LocalStrategy === //
 var LocalStrategy = require('passport-local').Strategy;
 
-// 패스포트 로그인 설정
+//패스포트 로그인 설정
 passport.use('local-login', new LocalStrategy({
-    usernameField : 'email',
-    passwordField : 'password',
-    passReqToCallback : true
-}, function(req, email, password, done){
-    console.log('passport 의 local-login 호출됨 : ' + email + ', ' + password);
-    
-    var database = app.get('database');
-    database.UserModel.findOne({'email':email}, function(err,user){
-        if(err) {return done(err);}
-        
-        //등록된 사용자가 없는 경우
-        if(!user){
-            console.log('계정이 일치하지 않음.');
-            return done(null, false, req.flash('등록된 계정이 없습니다.'));
-        }
-        
-        // 비밀번호를 비교하여 맞지 않는 경우
-        var authenticated = user.authenticate(password, user._doc.salt, user._doc.hashed_password);
-        
-        if(!authenticated){
-            console.log('비밀번호 일치하지 않음.');
-            return done(null, false, req.flash('loginMessage', '비밀번호가 일치하지 않습니다.'));
-        }
-        
-        // 정상인 경우
-        console.log('계정과 비밀번호가 일치함.');
-        return done(null,user);
-    });
-}));
+		usernameField : 'email',
+		passwordField : 'password',
+		passReqToCallback : true   // 이 옵션을 설정하면 아래 콜백 함수의 첫번째 파라미터로 req 객체 전달됨
+	}, function(req, email, password, done) { 
+		console.log('passport의 local-login 호출됨 : ' + email + ', ' + password);
+		
+		var database = app.get('database');
+	    database.UserModel.findOne({ 'email' :  email }, function(err, user) {
+	    	if (err) { return done(err); }
+
+	    	// 등록된 사용자가 없는 경우
+	    	if (!user) {
+	    		console.log('계정이 일치하지 않음.');
+	    		return done(null, false, req.flash('loginMessage', '등록된 계정이 없습니다.'));  // 검증 콜백에서 두 번째 파라미터의 값을 false로 하여 인증 실패한 것으로 처리
+	    	}
+	    	
+	    	// 비밀번호 비교하여 맞지 않는 경우
+			var authenticated = user.authenticate(password, user._doc.salt, user._doc.hashed_password);
+			if (!authenticated) {
+				console.log('비밀번호 일치하지 않음.');
+				return done(null, false, req.flash('loginMessage', '비밀번호가 일치하지 않습니다.'));  // 검증 콜백에서 두 번째 파라미터의 값을 false로 하여 인증 실패한 것으로 처리
+			} 
+			
+			// 정상인 경우
+			console.log('계정과 비밀번호가 일치함.');
+			return done(null, user);  // 검증 콜백에서 두 번째 파라미터의 값을 user 객체로 넣어 인증 성공한 것으로 처리
+	    });
+
+	}));
 
 
 // 패스포트 회원가입 설정
